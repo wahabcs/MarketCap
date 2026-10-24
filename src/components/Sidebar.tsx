@@ -4,20 +4,9 @@ import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/lib/auth";
-import {
-  BarChart3, Boxes, FolderClosed, Globe, Home, LayoutGrid, LogIn, LogOut, Moon, Plus, Star, Sun, User,
-} from "lucide-react";
+import { NavLinks } from "./NavLinks";
+import { Boxes, LogIn, LogOut, Moon, Sun } from "lucide-react";
 
-const nav = [
-  { label: "Overview", icon: Home, href: "/" },
-  { label: "My Stock", icon: LayoutGrid },
-  { label: "Watchlist", icon: Star, href: "/watchlist" },
-  { label: "Portfolio", icon: BarChart3, active: true },
-  { label: "Analytic", icon: BarChart3 },
-  { label: "News", icon: Globe },
-  { label: "Account", icon: User },
-];
-const files = [{ label: "Transactions", href: "/transactions" }];
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -72,32 +61,7 @@ export function Sidebar() {
         <span className="text-xl font-semibold">MarketCap</span>
       </div>
 
-      <nav className="flex flex-col gap-1">
-        {nav.map(({ label, icon: Icon, active, href }) => (
-          <a
-            key={label}
-            href={href ?? "#"}
-            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] ${
-              active ? "bg-muted-surface font-medium" : "text-muted hover:bg-muted-surface"
-            }`}
-          >
-            <Icon size={18} /> {label}
-          </a>
-        ))}
-      </nav>
-
-      <hr className="my-5 border-border" />
-      <div className="mb-2 flex items-center justify-between px-3">
-        <span className="font-medium">Files</span>
-        <Plus size={16} className="text-muted" />
-      </div>
-      <div className="flex flex-col gap-1">
-        {files.map((f) => (
-          <a key={f.label} href={f.href} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] text-muted hover:bg-muted-surface">
-            <FolderClosed size={18} /> {f.label}
-          </a>
-        ))}
-      </div>
+      <NavLinks />
 
       <div className="mt-auto">
         <AccountBox />
