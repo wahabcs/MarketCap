@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSyncExternalStore } from "react";
+import { Suspense, useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/lib/auth";
 import { NavLinks } from "./NavLinks";
@@ -61,7 +61,9 @@ export function Sidebar() {
         <span className="text-xl font-semibold">MarketCap</span>
       </div>
 
-      <NavLinks />
+      <Suspense fallback={<div className="h-56" />}>
+        <NavLinks />
+      </Suspense>
 
       <div className="mt-auto">
         <AccountBox />

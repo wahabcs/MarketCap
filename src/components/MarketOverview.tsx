@@ -66,7 +66,7 @@ function Movers() {
 
 export function MarketOverview({ news }: { news: React.ReactNode }) {
   return (
-    <QuotesProvider symbols={OVERVIEW_SYMBOLS}>
+    <QuotesProvider symbols={OVERVIEW_SYMBOLS} intervalMs={60_000}>
       <Indices />
       <Movers />
       <p className="-mt-2 text-xs text-muted">Movers are ranked among {POPULAR.length} widely held large-cap stocks. Prices may be delayed. Not financial advice.</p>

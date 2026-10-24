@@ -10,20 +10,34 @@ export class MarketDataError extends Error {
   }
 }
 
-// Cache Components: results are cached in memory for `revalidate` seconds.
-// Errors thrown here (rate limits, bad key) are never cached.
-async function get<T>(path: string, params: Record<string, string>, revalidate: number): Promise<T> {
+import { fail, type Result } from "./result";
+
+// Cache Components: successful responses are cached for `revalidate` seconds. Failures (rate limit,
+// bad key, outage) are cached for ~2s only, so one bad response never sticks around.
+async function cachedGet<T>(path: string, params: Record<string, string>, revalidate: number): Promise<Result<T>> {
   "use cache";
-  cacheLife({ stale: Math.min(revalidate, 30), revalidate, expire: revalidate * 4 });
+  const failed = (status: number, message: string) => {
+    cacheLife({ stale: 0, revalidate: 2, expire: 10 });
+    return fail(status, message);
+  };
 
   const key = process.env.FINNHUB_API_KEY;
-  if (!key) throw new MarketDataError("FINNHUB_API_KEY is not set. Add it to .env.local.", 503);
+  if (!key) return failed(503, "FINNHUB_API_KEY is not set. Add it to .env.local.");
 
   const url = `${BASE}${path}?${new URLSearchParams(params)}`;
   const res = await fetch(url, { headers: { "X-Finnhub-Token": key } });
-  if (res.status === 429) throw new MarketDataError("Market data rate limit reached. Try again shortly.", 429);
-  if (!res.ok) throw new MarketDataError(`Market data request failed (${res.status}).`, 502);
-  return res.json() as Promise<T>;
+  if (res.status === 429) return failed(429, "Market data rate limit reached. Try again shortly.");
+  if (!res.ok) return failed(502, `Market data request failed (${res.status}).`);
+
+  const data = (await res.json()) as T;
+  cacheLife({ stale: Math.min(revalidate, 30), revalidate, expire: revalidate * 4 });
+  return { ok: true, data };
+}
+
+async function get<T>(path: string, params: Record<string, string>, revalidate: number): Promise<T> {
+  const r = await cachedGet<T>(path, params, revalidate);
+  if (!r.ok) throw new MarketDataError(r.message, r.status);
+  return r.data;
 }
 
 const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
@@ -35,7 +49,7 @@ export function normalizeSymbol(raw: string): string | null {
 
 export async function getQuote(symbol: string): Promise<Quote> {
   const q = await get<{ c: number; d: number | null; dp: number | null; h: number; l: number; o: number; pc: number; t: number }>(
-    "/quote", { symbol }, 15,
+    "/quote", { symbol }, 30,
   );
   // Finnhub returns all zeros for unknown symbols.
   if (!q.c && !q.pc) throw new MarketDataError(`No quote found for ${symbol}.`, 404);
@@ -95,12 +109,19 @@ export async function getMarketNews(): Promise<NewsItem[]> {
   return r.slice(0, 12).map(toNews);
 }
 
-export async function getCompanyNews(symbol: string): Promise<NewsItem[]> {
+// Dates are computed inside the cache scope, which is the allowed place for "now".
+async function cachedCompanyNews(symbol: string): Promise<Result<RawNews[]>> {
   "use cache";
-  cacheLife("minutes");
   const day = (d: Date) => d.toISOString().slice(0, 10);
   const to = new Date();
   const from = new Date(Date.now() - 7 * 86400_000);
-  const r = await get<RawNews[]>("/company-news", { symbol, from: day(from), to: day(to) }, 300);
-  return r.slice(0, 10).map(toNews);
+  const r = await cachedGet<RawNews[]>("/company-news", { symbol, from: day(from), to: day(to) }, 300);
+  cacheLife(r.ok ? { stale: 30, revalidate: 300, expire: 1200 } : { stale: 0, revalidate: 2, expire: 10 });
+  return r;
+}
+
+export async function getCompanyNews(symbol: string): Promise<NewsItem[]> {
+  const r = await cachedCompanyNews(symbol);
+  if (!r.ok) throw new MarketDataError(r.message, r.status);
+  return r.data.slice(0, 10).map(toNews);
 }

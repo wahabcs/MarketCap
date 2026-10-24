@@ -6,9 +6,9 @@ import type { Quote } from "@/lib/market/types";
 type State = { quotes: Record<string, Quote>; error: string | null; loading: boolean };
 const Ctx = createContext<State>({ quotes: {}, error: null, loading: true });
 
-const POLL_MS = 15_000;
+const DEFAULT_POLL_MS = 30_000;
 
-export function QuotesProvider({ symbols, children }: { symbols: string[]; children: ReactNode }) {
+export function QuotesProvider({ symbols, intervalMs = DEFAULT_POLL_MS, children }: { symbols: string[]; intervalMs?: number; children: ReactNode }) {
   const [state, setState] = useState<State>({ quotes: {}, error: null, loading: true });
   const key = symbols.join(",");
 
@@ -28,12 +28,12 @@ export function QuotesProvider({ symbols, children }: { symbols: string[]; child
       }
     };
     load();
-    const id = setInterval(() => document.visibilityState === "visible" && load(), POLL_MS);
+    const id = setInterval(() => document.visibilityState === "visible" && load(), intervalMs);
     return () => {
       alive = false;
       clearInterval(id);
     };
-  }, [key]);
+  }, [key, intervalMs]);
 
   return <Ctx.Provider value={state}>{children}</Ctx.Provider>;
 }
