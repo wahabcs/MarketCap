@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Star, X } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { money } from "@/lib/mock";
+import { money } from "@/lib/format";
 import { useQuotes, QuotesProvider } from "@/lib/useQuotes";
 import { useWatchlist, WATCHLIST_LIMIT } from "@/lib/watchlist";
 import { ChangeBadge } from "./Badge";

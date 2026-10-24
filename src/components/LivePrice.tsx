@@ -1,6 +1,6 @@
 "use client";
 
-import { money } from "@/lib/mock";
+import { money } from "@/lib/format";
 import { useQuotes } from "@/lib/useQuotes";
 import type { Quote } from "@/lib/market/types";
 import { ChangeBadge } from "./Badge";

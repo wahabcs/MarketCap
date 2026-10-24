@@ -17,7 +17,7 @@ const nav = [
   { label: "News", icon: Globe },
   { label: "Account", icon: User },
 ];
-const files = ["Dividends", "Transactions"];
+const files = [{ label: "Transactions", href: "/transactions" }];
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -93,8 +93,8 @@ export function Sidebar() {
       </div>
       <div className="flex flex-col gap-1">
         {files.map((f) => (
-          <a key={f} href="#" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] text-muted hover:bg-muted-surface">
-            <FolderClosed size={18} /> {f}
+          <a key={f.label} href={f.href} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] text-muted hover:bg-muted-surface">
+            <FolderClosed size={18} /> {f.label}
           </a>
         ))}
       </div>

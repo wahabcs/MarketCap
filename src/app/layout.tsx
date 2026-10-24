@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/lib/auth";
+import { PortfolioProvider } from "@/lib/portfolio";
 import { WatchlistProvider } from "@/lib/watchlist";
 import "./globals.css";
 
@@ -21,7 +22,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <AuthProvider>
-            <WatchlistProvider>{children}</WatchlistProvider>
+            <WatchlistProvider>
+              <PortfolioProvider>{children}</PortfolioProvider>
+            </WatchlistProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

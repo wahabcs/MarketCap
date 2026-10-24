@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PROTECTED = ["/watchlist"];
+const PROTECTED = ["/watchlist", "/transactions"];
 
 // Refreshes the Supabase session cookie on each request and sends signed-out
 // visitors away from protected pages. Data access is still enforced by RLS.

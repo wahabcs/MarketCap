@@ -2,10 +2,10 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { LivePrice } from "@/components/LivePrice";
-import { WatchButton } from "@/components/WatchButton";
+import { StockActions } from "@/components/StockActions";
 import { getCompany, getCompanyNews, getQuote, MarketDataError, normalizeSymbol } from "@/lib/market/finnhub";
 import { QuotesProvider } from "@/lib/useQuotes";
-import { money } from "@/lib/mock";
+import { money } from "@/lib/format";
 
 const compact = (n: number | null) =>
   n === null ? "—" : "$" + new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(n);
@@ -74,7 +74,7 @@ async function StockContent({ params }: { params: PageProps<"/stocks/[symbol]">[
                 {company.industry && ` · ${company.industry}`}
               </p>
             </div>
-            <WatchButton symbol={symbol} />
+            <StockActions symbol={symbol} price={quote.price} />
           </div>
           <div className="mt-5">
             <LivePrice initial={quote} />
