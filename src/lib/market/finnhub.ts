@@ -75,12 +75,19 @@ export async function getCompany(symbol: string): Promise<Company> {
     get<Record<string, unknown>>("/stock/profile2", { symbol }, 86400),
     get<{ metric?: Record<string, unknown> }>("/stock/metric", { symbol, metric: "all" }, 86400),
   ]);
-  if (!p.name) throw new MarketDataError(`No company found for ${symbol}.`, 404);
+  // ETFs (SPY, QQQ, ...) have no company profile, so fall back to the name from search.
+  let name = p.name ? String(p.name) : null;
+  if (!name) {
+    const hits = await get<{ result: { symbol: string; description: string }[] }>("/search", { q: symbol }, 3600).catch(() => null);
+    const raw = hits?.result.find((r) => r.symbol === symbol)?.description ?? null;
+    name = raw && raw.replace(/^SS\s+/, "").replace(/-US$/, "").trim(); // "SS SPDR S&P 500 ETF TRUST-US" -> "SPDR S&P 500 ETF TRUST"
+  }
+  if (!name) throw new MarketDataError(`No company found for ${symbol}.`, 404);
   const metric = m.metric ?? {};
   const mc = num(p.marketCapitalization);
   return {
     symbol,
-    name: String(p.name),
+    name,
     logo: (p.logo as string) || null,
     industry: (p.finnhubIndustry as string) || null,
     exchange: (p.exchange as string) || null,
