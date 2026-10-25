@@ -41,14 +41,14 @@ async function fetchSeries(symbol: string, params: Record<string, string>): Prom
 const SHORT = { stale: 0, revalidate: 2, expire: 10 };
 
 async function intraday(symbol: string, interval: string, outputsize: string): Promise<Result<Bar[]>> {
-  "use cache";
+  "use cache: remote";
   const r = await fetchSeries(symbol, { interval, outputsize });
   cacheLife(r.ok ? { stale: 60, revalidate: 300, expire: 1800 } : SHORT);
   return r;
 }
 
 async function daily(symbol: string, params: Record<string, string>): Promise<Result<Bar[]>> {
-  "use cache";
+  "use cache: remote";
   if (params.start_date === "YTD") {
     params = { ...params, start_date: `${new Date().getUTCFullYear()}-01-01` };
   }

@@ -101,7 +101,7 @@ supabase/migrations SQL schema and security policies
 
 ## Limitations
 
-- Free data tiers: quotes can be delayed, and "top movers" are ranked within a fixed set of 16
+- Free data tiers: quotes can be delayed, and "top movers" are ranked within a fixed set of 12
   popular stocks because the free plan has no market-wide movers feed.
 - US-listed stocks and ETFs only; all amounts are in USD.
 - No portfolio-value-over-time chart yet.

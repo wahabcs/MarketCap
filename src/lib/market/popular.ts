@@ -18,11 +18,7 @@ export const POPULAR = [
   { symbol: "NFLX", name: "Netflix" },
   { symbol: "JPM", name: "JPMorgan" },
   { symbol: "V", name: "Visa" },
-  { symbol: "WMT", name: "Walmart" },
-  { symbol: "DIS", name: "Disney" },
   { symbol: "BA", name: "Boeing" },
-  { symbol: "COST", name: "Costco" },
-  { symbol: "INTC", name: "Intel" },
 ] as const;
 
 export const OVERVIEW_SYMBOLS: string[] = [...INDEX_FUNDS, ...POPULAR].map((s) => s.symbol);

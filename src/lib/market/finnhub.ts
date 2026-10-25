@@ -15,7 +15,7 @@ import { fail, type Result } from "./result";
 // Cache Components: successful responses are cached for `revalidate` seconds. Failures (rate limit,
 // bad key, outage) are cached for ~2s only, so one bad response never sticks around.
 async function cachedGet<T>(path: string, params: Record<string, string>, revalidate: number): Promise<Result<T>> {
-  "use cache";
+  "use cache: remote";
   const failed = (status: number, message: string) => {
     cacheLife({ stale: 0, revalidate: 2, expire: 10 });
     return fail(status, message);
@@ -111,7 +111,7 @@ export async function getMarketNews(): Promise<NewsItem[]> {
 
 // Dates are computed inside the cache scope, which is the allowed place for "now".
 async function cachedCompanyNews(symbol: string): Promise<Result<RawNews[]>> {
-  "use cache";
+  "use cache: remote";
   const day = (d: Date) => d.toISOString().slice(0, 10);
   const to = new Date();
   const from = new Date(Date.now() - 7 * 86400_000);
